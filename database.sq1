@@ -1,0 +1,94 @@
+ALTER TABLE DEPARTMENT ADD notes VARCHAR(255);
+
+CREATE TABLE DOCTOR (
+    doctorID INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    specialty VARCHAR(100),
+    experience INT,
+    phone VARCHAR(20),
+    deptID INT,
+    FOREIGN KEY (deptID) REFERENCES DEPARTMENT(departmentID)
+);
+
+CREATE TABLE PATIENT (
+    patientID INT PRIMARY KEY,
+    fullName VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    birthDate DATE
+);
+
+ALTER TABLE PATIENT ADD age INT;
+
+CREATE TABLE EMPLOYEE (
+    employeeID INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    jobTitle VARCHAR(50),
+    email VARCHAR(100),
+    workingHours VARCHAR(50)
+);
+
+CREATE TABLE APPOINTMENT (
+    appointmentID INT PRIMARY KEY,
+    date DATE NOT NULL,
+    startTime TIME NOT NULL,
+    endTime TIME NOT NULL,
+    status VARCHAR(20),
+    patientID INT,
+    doctorID INT,
+    employeeID INT,
+    FOREIGN KEY (patientID) REFERENCES PATIENT(patientID),
+    FOREIGN KEY (doctorID) REFERENCES DOCTOR(doctorID),
+    FOREIGN KEY (employeeID) REFERENCES EMPLOYEE(employeeID)
+);
+
+INSERT INTO DEPARTMENT (departmentID, name, numDoctor, location, phone) VALUES
+(101, 'Cardiology', 5, 'Building A, Floor 1', '012345601'),
+(102, 'Neurology', 3, 'Building A, Floor 2', '012345602'),
+(103, 'Pediatrics', 4, 'Building B, Floor 1', '012345603'),
+(104, 'Orthopedics', 4, 'Building B, Floor 2', '012345604'),
+(105, 'Dermatology', 4, 'Building C, Floor 1', '012345605'),
+(106, 'Ophthalmology', 2, 'Building C, Floor 2', '012345606'),
+(107, 'Emergency Room', 10, 'Building D, Floor 1', '012345607');
+
+INSERT INTO DOCTOR VALUES (201, 'Haitham Ahmed', 'Cardiology', 15, '0550000111', 101);
+INSERT INTO DOCTOR VALUES (202, 'Tamim Mohammed', 'Neurology', 8, '0550000222', 102);
+INSERT INTO DOCTOR VALUES (203, 'Noah Yousef', 'Pediatrics', 12, '0550000333', 103);
+INSERT INTO DOCTOR VALUES (204, 'Sadeem Saud', 'Orthopedics', 20, '0550000444', 104);
+INSERT INTO DOCTOR VALUES (205, 'Aleem Meshal', 'Dermatology', 5, '0550000555', 105);
+INSERT INTO DOCTOR VALUES (206, 'Yara Omar', 'Ophthalmology', 10, '0550000666', 106);
+
+INSERT INTO PATIENT (patientID, fullName, email, phone, birthDate) VALUES
+(303, 'Fatima Ali', 'fatima@mail.com', '056000223', '1992-03-15'),
+(304, 'Amal Mansour', 'amal@mail.com', '056000224', '1998-07-22'),
+(305, 'Ahlam Fahad', 'ahlam@mail.com', '056000225', '1980-12-05'),
+(306, 'Ahmed Hassan', 'ahmed@mail.com', '056000226', '1995-01-30'),
+(307, 'Mohammed Salem', 'mohammed@mail.com', '056000227', '1988-11-12');
+
+INSERT INTO EMPLOYEE VALUES (403, 'Azzam Ali', 'Coordinator', 'azzam@clinic.com', '08:00 - 16:00');
+INSERT INTO EMPLOYEE VALUES (404, 'Yasmin Ali', 'Secretary', 'yasmin@clinic.com', '09:00 - 17:00');
+
+INSERT INTO APPOINTMENT VALUES (1, '2026-06-01', '09:00:00', '09:30:00', 'Completed', 303, 201, 403);
+INSERT INTO APPOINTMENT VALUES (2, '2026-06-01', '10:00:00', '10:30:00', 'Scheduled', 304, 202, 403);
+INSERT INTO APPOINTMENT VALUES (3, '2026-06-02', '11:00:00', '11:30:00', 'Pending', 305, 203, 404);
+INSERT INTO APPOINTMENT VALUES (4, '2026-06-03', '13:00:00', '13:30:00', 'Scheduled', 306, 204, 403);
+INSERT INTO APPOINTMENT VALUES (5, '2026-06-04', '15:00:00', '15:30:00', 'Confirmed', 307, 205, 404);
+
+UPDATE APPOINTMENT
+SET date = '2026-07-20', status = 'Rescheduled'
+WHERE appointmentID = 1;
+
+DELETE FROM APPOINTMENT
+WHERE appointmentID = 3;
+
+SELECT A.appointmentID, P.fullName AS Patient_Name, D.name AS Doctor_Name, A.date, A.status
+FROM APPOINTMENT A
+JOIN PATIENT P ON A.patientID = P.patientID
+JOIN DOCTOR D ON A.doctorID = D.doctorID
+ORDER BY A.date ASC;
+
+SELECT DEP.name AS Department, COUNT(DOC.doctorID) AS Total_Doctors
+FROM DEPARTMENT DEP
+LEFT JOIN DOCTOR DOC ON DEP.departmentID = DOC.deptID
+GROUP BY DEP.name
+ORDER BY Total_Doctors DESC;
